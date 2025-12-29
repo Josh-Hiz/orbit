@@ -1,0 +1,10 @@
+{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "Default Preset",
+            "binaryDir": "${sourceDir}/build/",
+            "cacheVariables": {}
+        }
+    ]
+}
