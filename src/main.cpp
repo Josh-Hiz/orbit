@@ -1,27 +1,3 @@
-// Orbit – high-performance cross-exchange cryptocurrency arbitrage detector.
-//
-// Architecture overview:
-//
-//   ┌─────────────┐  ┌─────────────┐  ┌──────────────┐  ┌───────────────┐
-//   │  BinanceWS  │  │  KrakenWS   │  │  CoinbaseWS  │  │ HyperLiquidWS │
-//   │  (thread)   │  │  (thread)   │  │  (thread)    │  │  (thread)     │
-//   └──────┬──────┘  └──────┬──────┘  └──────┬───────┘  └───────┬───────┘
-//          │                │                 │                   │
-//          └────────────────┴─────────────────┴───────────────────┘
-//                                      │  update()
-//                               ┌──────▼──────┐
-//                               │  PriceTable  │  (shared_mutex, CV)
-//                               └──────┬───────┘
-//                                      │  waitForUpdate()
-//                            ┌─────────▼──────────┐
-//                            │  ArbitrageEngine    │  (dedicated thread)
-//                            │  scan all symbols   │
-//                            │  all exchange pairs │
-//                            └─────────────────────┘
-//
-// Each exchange runs its own io_context + thread so a slow exchange never
-// delays others. The PriceTable is the single shared data structure.
-
 #include "core/ArbitrageEngine.h"
 #include "core/PriceTable.h"
 #include "exchanges/BinanceWS.h"
