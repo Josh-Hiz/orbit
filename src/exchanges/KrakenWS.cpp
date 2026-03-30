@@ -1,5 +1,5 @@
 #include "KrakenWS.h"
-#include "utils/Logger.hpp"
+#include "../utils/Logger.h"
 
 #include <algorithm>
 #include <cctype>

@@ -1,5 +1,4 @@
 #include "BinanceWS.h"
-#include "utils/Logger.hpp"
 
 #include <algorithm>
 #include <cctype>

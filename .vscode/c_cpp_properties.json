@@ -1,0 +1,19 @@
+{
+    "version": 4,
+    "configurations": [
+        {
+            "includePath": [
+                "${workspaceFolder}/",
+                "${workspaceFolder}/src",
+                "/opt/homebrew/include",
+                "/opt/homebrew/opt/openssl/include"
+            ],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}",
+                    "/opt/homebrew/include"
+                ]
+            }
+        }
+    ]
+}

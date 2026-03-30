@@ -66,8 +66,8 @@ Both directions are checked simultaneously (A→B and B→A).
 
 | Library        | Purpose                          | Version |
 |----------------|----------------------------------|---------|
-| Boost.Beast    | WebSocket client (header-only)   | >= 1.81 |
-| Boost.Asio     | Async I/O and threading          | >= 1.81 |
+| Boost.Beast    | WebSocket client (header-only)   | >= 1.85 |
+| Boost.Asio     | Async I/O and threading          | >= 1.85 |
 | OpenSSL        | TLS/SSL for WSS connections      | >= 1.1  |
 | nlohmann/json  | JSON parsing (auto-downloaded)   | 3.11.3  |
 
@@ -87,15 +87,7 @@ sudo apt install -y build-essential cmake libboost-all-dev libssl-dev
 brew install cmake boost openssl
 ```
 
-**Build:**
-
-```bash
-./build.sh            # Release (optimised)
-./build.sh debug      # Debug + AddressSanitizer + UBSan
-./build.sh clean      # Remove build directory
-```
-
-Or manually:
+Building manually:
 
 ```bash
 mkdir build && cd build

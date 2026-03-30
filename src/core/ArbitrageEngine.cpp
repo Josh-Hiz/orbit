@@ -2,7 +2,6 @@
 #include "../utils/Logger.h"
 #include "../utils/Metrics.h"
 
-#include <algorithm>
 #include <chrono>
 #include <cstdio>
 #include <iomanip>

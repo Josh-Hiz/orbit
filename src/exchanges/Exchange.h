@@ -14,7 +14,6 @@
 
 #include <atomic>
 #include <chrono>
-#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -64,8 +63,7 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
 
     void close() {
         closing_.store(true, std::memory_order_relaxed);
-        error_code ec;
-        beast::get_lowest_layer(ws_).cancel(ec);
+        beast::get_lowest_layer(ws_).cancel();
     }
 
     const std::string &exchangeName() const noexcept { return name_; }
@@ -181,7 +179,7 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
             return;
 
         LOG_WARN(name_, "Error [", where, "]: ", ec.message(),
-                 " – reconnecting in ", reconnectMs_, "ms");
+                 " - reconnecting in ", reconnectMs_, "ms");
 
         // Reset the stream before reconnecting.
         ws_ = WsStream(net::make_strand(ioc_), ssl_ctx_);

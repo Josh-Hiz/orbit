@@ -1,5 +1,5 @@
-#include "CoinbaseWS.hpp"
-#include "utils/Logger.hpp"
+#include "CoinbaseWS.h"
+#include "../utils/Logger.h"
 
 #include <nlohmann/json.hpp>
 

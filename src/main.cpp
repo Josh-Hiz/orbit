@@ -14,10 +14,8 @@
 #include <atomic>
 #include <csignal>
 #include <cstdlib>
-#include <iostream>
 #include <memory>
 #include <thread>
-#include <vector>
 
 namespace net = boost::asio;
 namespace ssl = boost::asio::ssl;

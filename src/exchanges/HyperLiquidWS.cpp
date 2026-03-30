@@ -1,5 +1,5 @@
 #include "HyperLiquidWS.h"
-#include "utils/Logger.hpp"
+#include "../utils/Logger.h"
 
 #include <nlohmann/json.hpp>
 
