@@ -18,7 +18,7 @@ namespace orbit {
 
 class ThreadPool {
   public:
-    // ── Construction ──────────────────────────────────────────────────────
+    // Construction
     explicit ThreadPool(
         std::size_t nThreads = std::thread::hardware_concurrency())
         : stop_(false) {

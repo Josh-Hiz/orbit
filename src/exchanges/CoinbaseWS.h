@@ -1,15 +1,5 @@
 #pragma once
 
-// Coinbase Advanced Trade WebSocket client – subscribes to the "ticker"
-// channel.
-//
-// WS endpoint : wss://advanced-trade-ws.coinbase.com
-// Channel     : ticker
-// Docs        :
-// https://docs.cdp.coinbase.com/advanced-trade/docs/ws-channels#ticker-channel
-//
-// Coinbase product IDs use hyphen notation: BTC-USD, ETH-USD, SOL-USD.
-
 #include "Exchange.h"
 #include <string>
 #include <unordered_map>

@@ -1,32 +1,3 @@
-// Coinbase Advanced Trade ticker WebSocket client.
-//
-// Subscribe message:
-//   {"type":"subscribe","product_ids":["BTC-USD","ETH-USD"],"channel":"ticker"}
-//
-// Subscriptions ACK:
-//   {"type":"subscriptions","channels":[{"name":"ticker","product_ids":["BTC-USD",...]}]}
-//
-// Ticker update:
-//   {
-//     "channel": "ticker",
-//     "client_id": "",
-//     "timestamp": "2024-01-01T00:00:00.000000Z",
-//     "sequence_num": 0,
-//     "events": [{
-//       "type": "update",
-//       "tickers": [{
-//         "type": "ticker",
-//         "product_id": "BTC-USD",
-//         "price": "29000.00",
-//         "best_bid": "28999.50",
-//         "best_ask": "29001.00",
-//         "best_bid_quantity": "1.23",
-//         "best_ask_quantity": "0.85",
-//         ...
-//       }]
-//     }]
-//   }
-
 #include "CoinbaseWS.hpp"
 #include "utils/Logger.hpp"
 

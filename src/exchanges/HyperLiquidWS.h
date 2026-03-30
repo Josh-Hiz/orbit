@@ -1,15 +1,5 @@
 #pragma once
 
-// HyperLiquid WebSocket client – subscribes to l2Book for best bid/ask.
-//
-// WS endpoint : wss://api.hyperliquid.xyz/ws
-// Subscription:
-// {"method":"subscribe","subscription":{"type":"l2Book","coin":"BTC"}} Docs :
-// https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/websocket
-//
-// HyperLiquid coins use short names without the quote currency: BTC, ETH, SOL.
-// All prices are quoted in USD (USDC).
-
 #include "Exchange.h"
 #include <string>
 #include <unordered_map>

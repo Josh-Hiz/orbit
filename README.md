@@ -41,7 +41,7 @@ For every monitored symbol and every ordered pair of exchanges **(A, B)**:
 spread_pct = (bid_B - ask_A) / ask_A × 100
 ```
 
-If `spread_pct ≥ min_spread_pct`, an opportunity is logged:
+If `spread_pct >= min_spread_pct`, an opportunity is logged:
 
 ```txt
 OPPORTUNITY  BTCUSDT  BUY Binance@29000.50  SELL Kraken@29035.00  spread=0.119%
@@ -66,9 +66,9 @@ Both directions are checked simultaneously (A→B and B→A).
 
 | Library        | Purpose                          | Version |
 |----------------|----------------------------------|---------|
-| Boost.Beast    | WebSocket client (header-only)   | ≥ 1.81  |
-| Boost.Asio     | Async I/O and threading          | ≥ 1.81  |
-| OpenSSL        | TLS/SSL for WSS connections      | ≥ 1.1   |
+| Boost.Beast    | WebSocket client (header-only)   | >= 1.81 |
+| Boost.Asio     | Async I/O and threading          | >= 1.81 |
+| OpenSSL        | TLS/SSL for WSS connections      | >= 1.1  |
 | nlohmann/json  | JSON parsing (auto-downloaded)   | 3.11.3  |
 
 ---
@@ -142,24 +142,24 @@ ORBIT_LOG_LEVEL=DEBUG \
 
 ```txt
 orbit/
-├── main.cpp                        # Entry point, wires everything together
-├── CMakeLists.txt                  # Build system
-├── build.sh                        # Convenience build script
+├── main.cpp                         # Entry point, wires everything together
+├── CMakeLists.txt                   # Build system
+├── build.sh                         # Convenience build script
 ├── src/
 │   ├── core/
-│   │   ├── PriceTable.hpp/.cpp     # Thread-safe best bid/ask store
-│   │   └── ArbitrageEngine.hpp/.cpp# Detection engine (dedicated thread)
+│   │   ├── PriceTable.hpp/.cpp      # Thread-safe best bid/ask store
+│   │   └── ArbitrageEngine.hpp/.cpp # Detection engine (dedicated thread)
 │   ├── exchanges/
-│   │   ├── Exchange.hpp            # CRTP base: Boost.Beast SSL/WS infrastructure
-│   │   ├── BinanceWS.hpp/.cpp      # Binance bookTicker stream
-│   │   ├── KrakenWS.hpp/.cpp       # Kraken ticker channel
-│   │   ├── CoinbaseWS.hpp/.cpp     # Coinbase Advanced Trade ticker
-│   │   └── HyperLiquidWS.hpp/.cpp  # HyperLiquid l2Book channel
+│   │   ├── Exchange.hpp             # CRTP base: Boost.Beast SSL/WS infrastructure
+│   │   ├── BinanceWS.hpp/.cpp       # Binance bookTicker stream
+│   │   ├── KrakenWS.hpp/.cpp        # Kraken ticker channel
+│   │   ├── CoinbaseWS.hpp/.cpp      # Coinbase Advanced Trade ticker
+│   │   └── HyperLiquidWS.hpp/.cpp   # HyperLiquid l2Book channel
 │   └── utils/
-│       ├── Config.hpp              # Runtime config (env-driven)
-│       ├── Logger.hpp              # Thread-safe coloured logger
-│       ├── Metrics.hpp             # Latency histograms + message rate counters
-│       └── ThreadPool.hpp          # Fixed-size thread pool
+│       ├── Config.hpp               # Runtime config (env-driven)
+│       ├── Logger.hpp               # Thread-safe coloured logger
+│       ├── Metrics.hpp              # Latency histograms + message rate counters
+│       └── ThreadPool.hpp           # Fixed-size thread pool
 └── resources/
     └── logo.svg
 ```

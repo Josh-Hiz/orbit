@@ -1,15 +1,3 @@
-// Kraken ticker WebSocket client.
-//
-// Subscription message:
-//   {"event":"subscribe","pair":["XBT/USD","ETH/USD"],"subscription":{"name":"ticker"}}
-//
-// Ticker update (array format):
-//   [42, {"a":["29001.00",0,"0.50"],"b":["29000.00",0,"1.00"],...}, "ticker",
-//   "XBT/USD"] Index: 0=channelID, 1=tickerData, 2="ticker", 3=pair
-//
-// "a" = ask array: [price, wholeLotVol, lotVol]
-// "b" = bid array: [price, wholeLotVol, lotVol]
-
 #include "KrakenWS.h"
 #include "utils/Logger.hpp"
 
