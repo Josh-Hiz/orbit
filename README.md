@@ -2,46 +2,182 @@
 
 # Orbit
 
-A low-latency cryptocurrency arbitrage detector and surveillance tool made in modern C++ (C++ 17).
+> High-performance cross-exchange cryptocurrency arbitrage detector in modern C++17.
 
-The purpose of this project was to research and practice implementing advanced low-latency programming techniques and concurrency in C++ that are common within high-frequency trading.
+Orbit connects simultaneously to **Binance**, **Kraken**, **Coinbase**, and **HyperLiquid** via WebSocket, ingests real-time best-bid/ask quotes, and continuously scans every exchange pair for arbitrage opportunities—all with sub-millisecond detection latency.
 
-In addition, to learn how market surveillance and arbitrage detection work in real markets using Orbit.
+---
 
-Orbit practices the following:
-
-1. TCP/IP & Socket Programming
-2. Concurrency in C++
-3. Template metaprogramming
-4. Multithreading
-5. Compile time optimization
-
-## Building Orbit
-
-Either you can run the provided bash script ``build.sh`` or type the following in your terminal:
-
-```sh
-mkdir build
-cd build
-cmake ..
-make
-```
-
-## How cryptocurrency arbitrage works
-
-## How Orbit works
-
-## Project Organization
+## Architecture
 
 ```txt
-docs/ --> Doxygen project documentation
-resources/ --> Any additional files (images, etc.) 
-src/ --> Application source code
-external/ --> 3rd-Party Libraries
-libs/ --> Static Libraries
-cmake/ --> CMake configuration files
+┌─────────────┐  ┌─────────────┐   ┌──────────────┐   ┌───────────────┐
+│  BinanceWS  │  │  KrakenWS   │   │  CoinbaseWS  │   │ HyperLiquidWS │
+│  (thread)   │  │  (thread)   │   │  (thread)    │   │  (thread)     │
+└──────┬──────┘  └──────┬──────┘   └──────┬───────┘   └───────┬───────┘
+       │                │                 │                   │
+       └────────────────┴─────────────────┴───────────────────┘
+                                   │  update()
+                            ┌──────▼──────┐
+                            │  PriceTable  │  (shared_mutex + CV)
+                            └──────┬───────┘
+                                   │  waitForUpdate()
+                         ┌─────────▼──────────┐
+                         │  ArbitrageEngine    │
+                         │  scan all symbols   │
+                         │  all exchange pairs │
+                         └─────────────────────┘
 ```
+
+Each exchange client runs in its own `io_context` thread, ensuring one slow or broken exchange never blocks the others. The `PriceTable` is the single shared data structure, protected by a `std::shared_mutex` for concurrent reads and exclusive writes.
+
+---
+
+## Arbitrage Detection Algorithm
+
+For every monitored symbol and every ordered pair of exchanges **(A, B)**:
+
+```txt
+spread_pct = (bid_B - ask_A) / ask_A × 100
+```
+
+If `spread_pct ≥ min_spread_pct`, an opportunity is logged:
+
+```txt
+OPPORTUNITY  BTCUSDT  BUY Binance@29000.50  SELL Kraken@29035.00  spread=0.119%
+```
+
+Both directions are checked simultaneously (A→B and B→A).
+
+---
+
+## Exchange WebSocket Streams
+
+| Exchange    | Endpoint                                  | Stream/Channel      | Update type      |
+|-------------|-------------------------------------------|---------------------|------------------|
+| Binance     | `stream.binance.com:9443/ws`              | `<sym>@bookTicker`  | Real-time        |
+| Kraken      | `ws.kraken.com`                           | `ticker`            | Real-time        |
+| Coinbase    | `advanced-trade-ws.coinbase.com`          | `ticker`            | Real-time        |
+| HyperLiquid | `api.hyperliquid.xyz/ws`                  | `l2Book`            | Real-time        |
+
+---
+
+## Dependencies
+
+| Library        | Purpose                          | Version |
+|----------------|----------------------------------|---------|
+| Boost.Beast    | WebSocket client (header-only)   | ≥ 1.81  |
+| Boost.Asio     | Async I/O and threading          | ≥ 1.81  |
+| OpenSSL        | TLS/SSL for WSS connections      | ≥ 1.1   |
+| nlohmann/json  | JSON parsing (auto-downloaded)   | 3.11.3  |
+
+---
+
+## Building
+
+**Prerequisites (Ubuntu/Debian):**
+
+```bash
+sudo apt install -y build-essential cmake libboost-all-dev libssl-dev
+```
+
+**Prerequisites (macOS):**
+
+```bash
+brew install cmake boost openssl
+```
+
+**Build:**
+
+```bash
+./build.sh            # Release (optimised)
+./build.sh debug      # Debug + AddressSanitizer + UBSan
+./build.sh clean      # Remove build directory
+```
+
+Or manually:
+
+```bash
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+make -j$(nproc)
+```
+
+---
+
+## Running
+
+```bash
+./build/orbit
+```
+
+### Environment Variables
+
+| Variable                  | Default          | Description                                    |
+|---------------------------|------------------|------------------------------------------------|
+| `ORBIT_SYMBOLS`           |`BTCUSDT,ETHUSDT` | Comma-separated symbols to monitor             |
+| `ORBIT_MIN_SPREAD_PCT`    | `0.10`           | Minimum spread % to trigger an alert           |
+| `ORBIT_STALE_MS`          | `5000`           | Quote age (ms) before considered stale         |
+| `ORBIT_RECONNECT_MS`      | `3000`           | Initial reconnect delay (doubles on failure)   |
+| `ORBIT_LOG_LEVEL`         | `INFO`           | `TRACE` `DEBUG` `INFO` `WARN` `ERROR` `FATAL`  |
+| `ORBIT_METRICS_INTERVAL`  | `30`             | Seconds between metrics summary (0=disabled)   |
+| `ORBIT_ENABLE_BINANCE`    | `1`              | Set to `0` to disable                          |
+| `ORBIT_ENABLE_KRAKEN`     | `1`              | Set to `0` to disable                          |
+| `ORBIT_ENABLE_COINBASE`   | `1`              | Set to `0` to disable                          |
+| `ORBIT_ENABLE_HYPERLIQUID`| `1`              | Set to `0` to disable                          |
+
+**Example:**
+
+```bash
+# Scan BTC and ETH with a tighter threshold, verbose logging
+ORBIT_SYMBOLS=BTCUSDT,ETHUSDT \
+ORBIT_MIN_SPREAD_PCT=0.05 \
+ORBIT_LOG_LEVEL=DEBUG \
+./build/orbit
+```
+
+---
+
+## Project Structure
+
+```txt
+orbit/
+├── main.cpp                        # Entry point, wires everything together
+├── CMakeLists.txt                  # Build system
+├── build.sh                        # Convenience build script
+├── src/
+│   ├── core/
+│   │   ├── PriceTable.hpp/.cpp     # Thread-safe best bid/ask store
+│   │   └── ArbitrageEngine.hpp/.cpp# Detection engine (dedicated thread)
+│   ├── exchanges/
+│   │   ├── Exchange.hpp            # CRTP base: Boost.Beast SSL/WS infrastructure
+│   │   ├── BinanceWS.hpp/.cpp      # Binance bookTicker stream
+│   │   ├── KrakenWS.hpp/.cpp       # Kraken ticker channel
+│   │   ├── CoinbaseWS.hpp/.cpp     # Coinbase Advanced Trade ticker
+│   │   └── HyperLiquidWS.hpp/.cpp  # HyperLiquid l2Book channel
+│   └── utils/
+│       ├── Config.hpp              # Runtime config (env-driven)
+│       ├── Logger.hpp              # Thread-safe coloured logger
+│       ├── Metrics.hpp             # Latency histograms + message rate counters
+│       └── ThreadPool.hpp          # Fixed-size thread pool
+└── resources/
+    └── logo.svg
+```
+
+---
+
+## Low-Latency Techniques
+
+- **One `io_context` per exchange** – no cross-exchange I/O contention.
+- **`shared_mutex` for PriceTable** – N concurrent readers, zero lock on reads.
+- **Condition variable wake-up** – ArbitrageEngine sleeps and wakes immediately on price update, not polling.
+- **`flat_buffer` (Boost.Beast)** – stack-friendly, no heap allocation per frame.
+- **Compile-time optimisation** – `-O3 -march=native` in Release mode.
+- **Staleness filtering** – stale quotes are skipped before the inner scan loop, avoiding false signals.
+- **Duplicate suppression** – a 500 ms cooldown per (symbol, direction) pair prevents log flooding.
+
+---
 
 ## Disclaimer
 
-Orbit is **NOT** a tool to determine financial decisions and I do not take any responsibility regarding the decisions a user may take. I do not give financial advise whatsoever and the development of Orbit is purely for educational purposes.
+Orbit is an **educational research tool** for studying high-frequency trading and market microstructure. It is **not** financial advice and should **not** be used to make actual trading decisions. I take no responsibility for any losses arising from its use.
