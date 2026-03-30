@@ -171,9 +171,9 @@ orbit/
 - **One `io_context` per exchange** – no cross-exchange I/O contention.
 - **`shared_mutex` for PriceTable** – N concurrent readers, zero lock on reads.
 - **Condition variable wake-up** – ArbitrageEngine sleeps and wakes immediately on price update, not polling.
-- **`flat_buffer` (Boost.Beast)** – stack-friendly, no heap allocation per frame.
+- **`flat_buffer` (Boost.Beast)** – No heap allocation per frame.
 - **Compile-time optimisation** – `-O3 -march=native` in Release mode.
-- **Staleness filtering** – stale quotes are skipped before the inner scan loop, avoiding false signals.
+- **Filtering** – stale quotes are skipped before the inner scan loop, avoiding false signals.
 - **Duplicate suppression** – a 500 ms cooldown per (symbol, direction) pair prevents log flooding.
 
 ---
