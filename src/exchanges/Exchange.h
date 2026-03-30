@@ -182,7 +182,7 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
                  " - reconnecting in ", reconnectMs_, "ms");
 
         // Reset the stream before reconnecting.
-        std::make_unique<WsStream>(net::make_strand(ioc_), ssl_ctx_);
+        ws_ = std::make_unique<WsStream>(net::make_strand(ioc_), ssl_ctx_);
         subIdx_ = 0;
         subMsgs_.clear();
         connected_.store(false, std::memory_order_relaxed);
