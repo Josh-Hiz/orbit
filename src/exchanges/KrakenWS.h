@@ -1,14 +1,5 @@
 #pragma once
 
-// Kraken v1 WebSocket client – subscribes to the ticker channel.
-//
-// WS endpoint : wss://ws.kraken.com   (public, no auth)
-// Channel     : ticker
-// Docs        : https://docs.kraken.com/api/docs/websocket-v1/ticker
-//
-// Kraken symbols use "/" notation: XBT/USD, ETH/USD, SOL/USD.
-// This client maps the user-facing symbols (e.g. BTCUSDT) to Kraken pairs.
-
 #include "Exchange.h"
 #include <string>
 #include <unordered_map>

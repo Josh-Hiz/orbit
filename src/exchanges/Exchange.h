@@ -27,12 +27,10 @@ namespace ssl = boost::asio::ssl;
 using tcp = net::ip::tcp;
 using error_code = boost::system::error_code;
 
-// ── WebSocket stream type
-// ─────────────────────────────────────────────────────
+// WebSocket stream type
 using WsStream = beast::websocket::stream<beast::ssl_stream<beast::tcp_stream>>;
 
-// ── Base exchange client
-// ──────────────────────────────────────────────────────
+// Base exchange client
 class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
   public:
     ExchangeWS(net::io_context &ioc, ssl::context &ssl_ctx,
@@ -44,7 +42,7 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
 
     virtual ~ExchangeWS() = default;
 
-    // ── Interface for subclasses ──────────────────────────────────────────
+    // Interface for subclasses
     virtual const char *host() const noexcept = 0;
     virtual const char *port() const noexcept = 0;
     virtual const char *path() const noexcept = 0;
@@ -55,7 +53,7 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
         return {buildSubscribeMsg()};
     }
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────
+    // Lifecycle
     void connect() {
         LOG_INFO(name_, "Connecting to ", host(), ":", port(), path());
         resolver_.async_resolve(
@@ -74,7 +72,6 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
     bool isConnected() const noexcept { return connected_.load(); }
 
   protected:
-    // ── Boost.Beast connection chain ──────────────────────────────────────
     void onResolve(error_code ec, tcp::resolver::results_type results) {
         if (ec)
             return scheduleReconnect(ec, "resolve");
