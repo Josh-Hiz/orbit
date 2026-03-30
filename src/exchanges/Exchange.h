@@ -36,7 +36,7 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
                PriceTable &priceTable, const Config &cfg, std::string name)
         : ioc_(ioc), ssl_ctx_(ssl_ctx), priceTable_(priceTable), cfg_(cfg),
           name_(std::move(name)), resolver_(net::make_strand(ioc)),
-          ws_(net::make_strand(ioc), ssl_ctx_),
+          ws_(std::make_unique<WsStream>(net::make_strand(ioc_), ssl_ctx_)),
           reconnectMs_(cfg.reconnectDelayMs) {}
 
     virtual ~ExchangeWS() = default;
@@ -63,7 +63,7 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
 
     void close() {
         closing_.store(true, std::memory_order_relaxed);
-        beast::get_lowest_layer(ws_).cancel();
+        beast::get_lowest_layer(*ws_).cancel();
     }
 
     const std::string &exchangeName() const noexcept { return name_; }
@@ -73,8 +73,8 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
     void onResolve(error_code ec, tcp::resolver::results_type results) {
         if (ec)
             return scheduleReconnect(ec, "resolve");
-        beast::get_lowest_layer(ws_).expires_after(std::chrono::seconds(10));
-        beast::get_lowest_layer(ws_).async_connect(
+        beast::get_lowest_layer(*ws_).expires_after(std::chrono::seconds(10));
+        beast::get_lowest_layer(*ws_).async_connect(
             results, beast::bind_front_handler(&ExchangeWS::onConnect,
                                                shared_from_this()));
     }
@@ -82,17 +82,17 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
     void onConnect(error_code ec, tcp::resolver::results_type::endpoint_type) {
         if (ec)
             return scheduleReconnect(ec, "connect");
-        beast::get_lowest_layer(ws_).expires_after(std::chrono::seconds(10));
+        beast::get_lowest_layer(*ws_).expires_after(std::chrono::seconds(10));
 
         // Set SNI hostname for TLS.
-        if (!SSL_set_tlsext_host_name(ws_.next_layer().native_handle(),
+        if (!SSL_set_tlsext_host_name(ws_->next_layer().native_handle(),
                                       host())) {
             ec = beast::error_code(static_cast<int>(::ERR_get_error()),
                                    net::error::get_ssl_category());
             return scheduleReconnect(ec, "SNI");
         }
 
-        ws_.next_layer().async_handshake(
+        ws_->next_layer().async_handshake(
             ssl::stream_base::client,
             beast::bind_front_handler(&ExchangeWS::onSslHandshake,
                                       shared_from_this()));
@@ -101,18 +101,18 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
     void onSslHandshake(error_code ec) {
         if (ec)
             return scheduleReconnect(ec, "ssl_handshake");
-        beast::get_lowest_layer(ws_).expires_never();
+        beast::get_lowest_layer(*ws_).expires_never();
 
         // Tune WebSocket options for low latency.
-        ws_.set_option(beast::websocket::stream_base::timeout::suggested(
+        ws_->set_option(beast::websocket::stream_base::timeout::suggested(
             beast::role_type::client));
-        ws_.set_option(beast::websocket::stream_base::decorator(
+        ws_->set_option(beast::websocket::stream_base::decorator(
             [&](beast::websocket::request_type &req) {
                 req.set(beast::http::field::user_agent,
                         "orbit/0.2 boost.beast");
             }));
 
-        ws_.async_handshake(
+        ws_->async_handshake(
             host(), path(),
             beast::bind_front_handler(&ExchangeWS::onWsHandshake,
                                       shared_from_this()));
@@ -136,9 +136,9 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
             doRead(); // all subs sent – start reading
             return;
         }
-        ws_.async_write(net::buffer(subMsgs_[subIdx_++]),
-                        beast::bind_front_handler(&ExchangeWS::onWrite,
-                                                  shared_from_this()));
+        ws_->async_write(net::buffer(subMsgs_[subIdx_++]),
+                         beast::bind_front_handler(&ExchangeWS::onWrite,
+                                                   shared_from_this()));
     }
 
     void onWrite(error_code ec, std::size_t) {
@@ -149,8 +149,8 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
 
     void doRead() {
         buf_.consume(buf_.size()); // clear old data
-        ws_.async_read(buf_, beast::bind_front_handler(&ExchangeWS::onRead,
-                                                       shared_from_this()));
+        ws_->async_read(buf_, beast::bind_front_handler(&ExchangeWS::onRead,
+                                                        shared_from_this()));
     }
 
     void onRead(error_code ec, std::size_t) {
@@ -182,7 +182,7 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
                  " - reconnecting in ", reconnectMs_, "ms");
 
         // Reset the stream before reconnecting.
-        ws_ = WsStream(net::make_strand(ioc_), ssl_ctx_);
+        std::make_unique<WsStream>(net::make_strand(ioc_), ssl_ctx_);
         subIdx_ = 0;
         subMsgs_.clear();
         connected_.store(false, std::memory_order_relaxed);
@@ -206,7 +206,7 @@ class ExchangeWS : public std::enable_shared_from_this<ExchangeWS> {
     std::string name_;
 
     tcp::resolver resolver_;
-    WsStream ws_;
+    std::unique_ptr<WsStream> ws_;
     beast::flat_buffer buf_;
 
     std::vector<std::string> subMsgs_;

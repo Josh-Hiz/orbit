@@ -136,7 +136,6 @@ ORBIT_LOG_LEVEL=DEBUG \
 orbit/
 ├── main.cpp                         # Entry point, wires everything together
 ├── CMakeLists.txt                   # Build system
-├── build.sh                         # Convenience build script
 ├── src/
 │   ├── core/
 │   │   ├── PriceTable.hpp/.cpp      # Thread-safe best bid/ask store

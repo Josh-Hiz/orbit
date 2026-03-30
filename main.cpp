@@ -8,9 +8,6 @@
 #include "utils/Logger.h"
 #include "utils/Metrics.h"
 
-#include <boost/asio.h>
-#include <boost/asio/ssl.h>
-
 #include <atomic>
 #include <csignal>
 #include <cstdlib>

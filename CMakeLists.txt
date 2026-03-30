@@ -48,7 +48,7 @@ set(ORBIT_SOURCES
   src/exchanges/HyperLiquidWS.cpp
 )
 
-add_executable(orbit src/main.cpp ${ORBIT_SOURCES})
+add_executable(orbit main.cpp ${ORBIT_SOURCES})
 
 target_include_directories(orbit PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src
