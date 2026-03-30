@@ -1,14 +1,3 @@
-// Binance bookTicker stream.
-//
-// Subscription message:
-//   {"method":"SUBSCRIBE","params":["btcusdt@bookTicker","ethusdt@bookTicker"],"id":1}
-//
-// Update message:
-//   {"u":123,"s":"BTCUSDT","b":"29000.00","B":"1.5","a":"29001.00","A":"0.8"}
-//
-// Fields: u=update_id, s=symbol, b=bestBidPrice, B=bestBidQty, a=bestAskPrice,
-// A=bestAskQty
-
 #include "BinanceWS.h"
 #include "utils/Logger.hpp"
 

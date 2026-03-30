@@ -1,14 +1,4 @@
 #pragma once
-// src/core/ArbitrageEngine.hpp
-// Cross-exchange arbitrage scanner.
-//
-// Algorithm (simple directional arbitrage):
-//   For every symbol S and every ordered pair of exchanges (A, B):
-//     spread = (bid_B - ask_A) / ask_A * 100
-//     If spread > minSpreadPct  ⇒  buy S on A at ask_A, sell on B at bid_B.
-//
-// The engine also considers the reverse direction (B→A) automatically.
-// Quotes are discarded if older than staleMs milliseconds.
 
 #include "../utils/Config.h"
 #include "PriceTable.h"

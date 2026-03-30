@@ -1,12 +1,5 @@
 #pragma once
 
-// base class for all exchange WebSocket clients.
-// Each exchange subclass only overrides:
-//   - host(), port(), path()        : connection coordinates
-//   - buildSubscribeMsg()           : JSON subscribe payload
-//   - onMessage(const std::string&) : parse incoming frame and call
-//   priceTable_.update(...)
-
 #include "../core/PriceTable.h"
 #include "../utils/Config.h"
 #include "../utils/Logger.h"

@@ -1,27 +1,3 @@
-// HyperLiquid l2Book WebSocket client.
-//
-// One subscription per coin:
-//   {"method":"subscribe","subscription":{"type":"l2Book","coin":"BTC"}}
-//
-// l2Book update message:
-//   {
-//     "channel": "l2Book",
-//     "data": {
-//       "coin": "BTC",
-//       "time": 1700000000000,
-//       "levels": [
-//         [{"px":"29000.0","sz":"1.5","n":3}, ...],   // bids (index 0), best =
-//         first entry
-//         [{"px":"29001.0","sz":"0.8","n":1}, ...]    // asks (index 1), best =
-//         first entry
-//       ]
-//     }
-//   }
-//
-// Note: "n" is the number of orders at that level.
-// levels[0] = bids sorted descending (highest first = best bid)
-// levels[1] = asks sorted ascending  (lowest first  = best ask)
-
 #include "HyperLiquidWS.h"
 #include "utils/Logger.hpp"
 

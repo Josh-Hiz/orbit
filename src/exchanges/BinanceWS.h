@@ -1,11 +1,4 @@
 #pragma once
-
-// Binance WebSocket client – subscribes to <symbol>@bookTicker streams.
-// WS endpoint : wss://stream.binance.com:9443/ws
-// Stream      : <symbol>@bookTicker  (best bid/ask, real-time, no throttle)
-// Docs        :
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
-
 #include "Exchange.h"
 #include <string>
 #include <vector>
