@@ -182,6 +182,14 @@ orbit/
 
 ---
 
+This was inspired by the [following article](https://pandeyshikha075.medium.com/building-a-real-time-cryptocurrency-arbitrage-detection-system-lessons-from-high-frequency-trading-be1e8151268b) as well as my own interests in Cryptocurrency.
+
+Orbit at the moment has an ok speed, however latency is still over 100+ microseconds or greater. This
+needs to change, and I will need to rework most of the architecture to use less expensive objects, and
+optimize my WebSocket architecture. In addition I will need to rework my order book completely, the first
+version of Orbit is meant to be like this, I have learned a lot from reading the Medium article talking
+all about this, Orbit 2.0 is expected to be the final version.
+
 ## Disclaimer
 
 Orbit is an **educational research tool** for studying high-frequency trading and market microstructure. It is **not** financial advice and should **not** be used to make actual trading decisions. I take no responsibility for any losses arising from its use.
